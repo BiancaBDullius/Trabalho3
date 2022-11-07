@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct
+typedef struct Nodo
 {
     int valor;
     struct Nodo *esquerda;
@@ -11,38 +11,57 @@ typedef struct
 
 typedef struct
 {
-    int qtdNodo;
     Nodo *raiz;
 } Arvore;
 
 Arvore *reset(Arvore *arv);
 void inserir(Nodo **nodo, Nodo *novoNodo);
-void isAVL(Nodo **direita, Nodo **esquerda);
+int isAVL(Nodo *raiz);
 void imprimir(Nodo *nodo);
-Nodo *criarNodo(int valor);
+struct Nodo *criarNodo(int valor);
+void clear(Nodo *nodo);
 
 int main()
 {
-    int op = 1, tmpValor;
-
-    Arvore *arv = (Arvore *)malloc(sizeof(Arvore));
-
-    arv = reset(arv);
+    int op = 1;
+    int tmpValor;
+    Arvore *arv = reset(arv);
 
     do
     {
-        printf("Digite um numero:\n");
+        printf("\nDigite um numero:\n");
         scanf("%d", &tmpValor);
 
         inserir(&(arv->raiz), criarNodo(tmpValor));
 
-        printf("Continuar inserindo valores na arvore?\n1 - Continuar\n0 - Parar\n");
+        printf("\n----------------\n");
+        imprimir(arv->raiz);
+        int avl = isAVL(arv->raiz);
+        if (avl == 1)
+        {
+            printf("Arvore eh AVL.");
+        }
+        else
+        {
+            printf("Arvore nao eh AVL.");
+        }
+        printf("\n----------------\n");
+
+        printf("\nContinuar inserindo valores na arvore?\n1 - Continuar\n0 - Parar\n");
         scanf("%d", &op);
-
     } while (op == 1);
-    // imprimir(arv->raiz);
-    isAVL(&(arv->raiz), &(arv->raiz));
-
+    printf("\n----------------");
+    imprimir(arv->raiz);
+    int avl = isAVL(arv->raiz);
+    if (avl == 1)
+    {
+        printf("Arvore eh AVL.");
+    }
+    else
+    {
+        printf("Arvore nao eh AVL.");
+    }
+    clear(arv->raiz);
     free(arv);
 }
 
@@ -64,7 +83,7 @@ void inserir(Nodo **atual, Nodo *novoNodo)
 {
 
     Nodo **temp = atual;
-    if (*temp == NULL)
+    if (*atual == NULL)
     {
         *atual = novoNodo;
     }
@@ -105,41 +124,53 @@ void imprimir(Nodo *nodo)
     if (nodo)
     {
         imprimir(nodo->esquerda);
-        printf("%d, ", nodo->valor);
+        printf("%d - ", nodo->valor);
         imprimir(nodo->direita);
     }
 }
 
-void isAVL(Nodo **esquerda, Nodo **direita)
+void clear(Nodo *nodo)
 {
+    if (nodo)
+    {
+        clear(nodo->esquerda);
+        clear(nodo->direita);
+        Nodo *temp = nodo;
+        free(temp);
+    }
+}
+
+int fb(Nodo *nodo)
+{
+    if (nodo == NULL)
+        return 0;
+
+    return 1 + fb(nodo->esquerda) - fb(nodo->direita);
+}
+
+int isAVL(Nodo *raiz)
+{
+
     int d = 0;
     int e = 0;
-    while (*direita)
-    {
-        direita = &(*direita)->direita;
-        d++;
-    }
 
-    while (*esquerda)
-    {
-        esquerda = &(*esquerda)->esquerda;
-        e++;
-    }
+    if (raiz == NULL)
+        return 1;
 
-    if (d - e > 1)
-    {
-        printf("Arvore não é AVL.");
-    }
+    e = fb(raiz->esquerda);
+    d = fb(raiz->direita);
+
+    if (e - d <= 1 && isAVL(raiz->esquerda) && isAVL(raiz->direita))
+        return 1;
     else
     {
-        printf("Arvore é AVL.");
+        return 0;
     }
 }
 
 Arvore *reset(Arvore *arv)
 {
-    Arvore *novaArv;
-    novaArv->qtdNodo = 0;
+    Arvore *novaArv = (Arvore *)(malloc(sizeof(Arvore)));
     novaArv->raiz = NULL;
     return novaArv;
 }
