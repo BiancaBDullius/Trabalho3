@@ -20,6 +20,7 @@ int isAVL(Nodo *raiz);
 void imprimir(Nodo *nodo);
 struct Nodo *criarNodo(int valor);
 void clear(Nodo *nodo);
+int altura(Nodo *pRaiz);
 
 int main()
 {
@@ -140,32 +141,37 @@ void clear(Nodo *nodo)
     }
 }
 
-int fb(Nodo *nodo)
+int altura(Nodo *raiz)
 {
-    if (nodo == NULL)
+    int e, d;
+    if (raiz == NULL)
         return 0;
-
-    return 1 + fb(nodo->esquerda) - fb(nodo->direita);
+    e = altura(raiz->esquerda);
+    d = altura(raiz->direita);
+    if (e > d)
+        return e + 1;
+    else
+        return d + 1;
 }
 
 int isAVL(Nodo *raiz)
 {
 
-    int d = 0;
-    int e = 0;
+    int fb;
 
     if (raiz == NULL)
         return 1;
 
-    e = fb(raiz->esquerda);
-    d = fb(raiz->direita);
-
-    if (e - d <= 1 && isAVL(raiz->esquerda) && isAVL(raiz->direita))
-        return 1;
-    else
-    {
+    if (!isAVL(raiz->esquerda))
         return 0;
-    }
+    if (!isAVL(raiz->direita))
+        return 0;
+
+    fb = altura(raiz->esquerda) - altura(raiz->direita);
+    if ((fb > 1) || (fb < -1))
+        return 0;
+    else
+        return 1;
 }
 
 Arvore *reset(Arvore *arv)
